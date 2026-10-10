@@ -1,4 +1,4 @@
-name: Build Windows + macOS
+name: Build Windows + macOS + Android
 on:
   workflow_dispatch:
   push:
@@ -44,14 +44,38 @@ jobs:
       - run: npm install
       - run: npx tauri icon icon.png
       - run: npx tauri build --target universal-apple-darwin --bundles dmg
-      - run: |
-          cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg RFLogAnalyzer-macOS.dmg
+      - run: cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg RFLogAnalyzer-macOS.dmg
       - uses: actions/upload-artifact@v4
         with:
           name: RFLogAnalyzer-macos
           path: RFLogAnalyzer-macOS.dmg
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Web-App in das Android-Projekt kopieren
+        run: |
+          mkdir -p android-app/www
+          cp www/index.html android-app/www/index.html
+      - run: npm install
+        working-directory: android-app
+      - run: npx cap add android
+        working-directory: android-app
+      - run: npx cap sync android
+        working-directory: android-app
+      - run: ./gradlew assembleDebug
+        working-directory: android-app/android
+      - run: cp android-app/android/app/build/outputs/apk/debug/app-debug.apk RFLogAnalyzer.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RFLogAnalyzer-android
+          path: RFLogAnalyzer.apk
   release:
-    needs: [win, mac]
+    needs: [win, mac, android]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:

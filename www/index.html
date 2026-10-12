@@ -445,14 +445,17 @@ input,select,button{font-family:inherit}
     m.ok = true; m.t0 = t[i0]; m.t1 = t[i1];
     // Ziel-Drehzahl
     var pos = []; for (i = i0; i <= i1; i++) if (tgt[i] > 50) pos.push(tgt[i]);
-    var tgtMed = pos.length ? median(pos) : nanmax(hs), fixedFrac = 0;
+    var noTgt = !pos.length, tgtMed, fixedFrac = 0;
+    if (noTgt) { var hv = []; for (i = i0; i <= i1; i++) hv.push(hs[i]); hv.sort(function (a, b) { return a - b; }); var p90 = hv[Math.floor(hv.length * 0.9)]; var hh = hv.filter(function (x) { return x > 0.9 * p90; }); tgtMed = hh.length ? median(hh) : nanmax(hs); }
+    else tgtMed = median(pos);
     if (pos.length) { var c2 = 0; pos.forEach(function (x) { if (Math.abs(x - tgtMed) <= 2) c2++; }); fixedFrac = c2 / pos.length; }
     m.target = tgtMed; m.target_fixed = fixedFrac > 0.6;
     // Hochlauf / Gaskappung / Auslauf
     var iUp = i0, upFound = false; for (i = i0; i <= i1; i++) if (hs[i] >= 0.95 * tgtMed) { iUp = i; upFound = true; break; }
     m.spool_up_s = upFound ? t[iUp] - t[i0] : NaN;
     var s5 = i0 + Math.floor(5 * fs), iCut = i1;
-    for (i = s5; i <= i1; i++) if (tgt[i] === 0 && hs[i] > 50) { iCut = i; break; }
+    if (noTgt) { var low = 0; for (i = Math.max(s5, iUp); i <= i1; i++) { if (hs[i] < 0.9 * tgtMed) { if (++low > fs * 0.5) { iCut = i - low + 1; break; } } else low = 0; } }
+    else for (i = s5; i <= i1; i++) if (tgt[i] === 0 && hs[i] > 50) { iCut = i; break; }
     m.t_cut = t[iCut]; var downT = NaN; for (i = iCut; i < n; i++) if (hs[i] < 50) { downT = t[i] - t[iCut]; break; }
     m.spool_down_s = downT; m.hs_at_cut = hs[Math.max(iCut - 1, 0)];
     var iFl = Math.min(iUp + Math.floor(2 * fs), iCut - 1);
@@ -471,6 +474,7 @@ input,select,button{font-family:inherit}
     m.v_start = nanmean(s2);
     m.cells = (cellsArg || Math.ceil(m.v_start / 4.25)); if (!(m.v_start > 3)) m.cells = 1;
     var vs = rollMedian(flV, 25); m.v_min = nanmin(vs); m.v_min_cell = m.v_min / m.cells;
+    m.hasElec = fin(m.v_min) && fin(nanmax(flI));
     m.i_peak = nanmax(flI); m.i_mean = nanmean(flI);
     var Pw = new Float64Array(fl.n); for (i = 0; i < fl.n; i++) Pw[i] = flI[i] * flV[i];
     m.p_peak = nanmax(Pw); m.p_mean = nanmean(Pw);
@@ -667,6 +671,8 @@ input,select,button{font-family:inherit}
     }
     // ---------- Akku / ESC ----------
     var vc = m.v_min_cell;
+    if (!m.hasElec) add('info', 'Akku', 'Keine Spannungs-/Stromdaten geloggt', 'In diesem Log fehlen Vbat/Ibat (Telemetrie-Felder nicht im Blackbox-Setup aktiv).', 'Optional: Blackbox-Felder fuer Spannung/Strom aktivieren, dann wird auch der Akku ausgewertet.');
+    else {
     var ob2 = 'Start ' + f1(m.v_start) + ' V (' + m.cells + 'S angenommen), tiefster Wert unter Last ' + f1(m.v_min) + ' V (' + f2(vc) + ' V/Zelle), Spitzenstrom ' + f0(m.i_peak) + ' A, Spitzenleistung ' + f1(m.p_peak / 1000) + ' kW, Verbrauch ' + f0(m.mah) + ' mAh (' + f0(m.wh) + ' Wh).';
     if (vc < T.vcell_load_warn) add('warn', 'Akku', 'Starker Spannungseinbruch unter Last', ob2, 'Akku/Kabel/Stecker pruefen, groesseren oder frischeren Akku verwenden, Flugzeit kuerzen.');
     else if (vc < T.vcell_load_hint) add('hint', 'Akku', 'Spannung bricht unter Last spuerbar ein', ob2, 'Beobachten: verschlechtert sich der Wert ueber mehrere Fluege, ist der Akku am Ende.');
@@ -675,6 +681,7 @@ input,select,button{font-family:inherit}
       var r = m.v_rest_cell;
       if (r < T.vcell_rest_low) add('hint', 'Akku', 'Akku tief entladen gelandet', 'Ruhespannung nach der Landung ' + f2(r) + ' V/Zelle.', 'Flugzeit kuerzen oder Akku frueher wechseln (Richtwert: ab etwa 3,7-3,8 V/Zelle Ruhespannung landen).');
       else add('ok', 'Akku', 'Landung mit Reserve', 'Ruhespannung nach der Landung ' + f2(r) + ' V/Zelle.');
+    }
     }
     var te = m.t_esc_max;
     if (!fin(te)) add('info', 'ESC', 'ESC-Temperatur nicht geloggt', 'ESC-Temperatursensor nicht im Log vorhanden. Aktiviere ESC-Telemetrie fuer Temperaturueberwachung.');
@@ -1293,14 +1300,17 @@ window.__ROTOR__="<svg class=\"rotor\" viewBox=\"0 0 200 200\" fill=\"none\"><de
     m.ok = true; m.t0 = t[i0]; m.t1 = t[i1];
     // Ziel-Drehzahl
     var pos = []; for (i = i0; i <= i1; i++) if (tgt[i] > 50) pos.push(tgt[i]);
-    var tgtMed = pos.length ? median(pos) : nanmax(hs), fixedFrac = 0;
+    var noTgt = !pos.length, tgtMed, fixedFrac = 0;
+    if (noTgt) { var hv = []; for (i = i0; i <= i1; i++) hv.push(hs[i]); hv.sort(function (a, b) { return a - b; }); var p90 = hv[Math.floor(hv.length * 0.9)]; var hh = hv.filter(function (x) { return x > 0.9 * p90; }); tgtMed = hh.length ? median(hh) : nanmax(hs); }
+    else tgtMed = median(pos);
     if (pos.length) { var c2 = 0; pos.forEach(function (x) { if (Math.abs(x - tgtMed) <= 2) c2++; }); fixedFrac = c2 / pos.length; }
     m.target = tgtMed; m.target_fixed = fixedFrac > 0.6;
     // Hochlauf / Gaskappung / Auslauf
     var iUp = i0, upFound = false; for (i = i0; i <= i1; i++) if (hs[i] >= 0.95 * tgtMed) { iUp = i; upFound = true; break; }
     m.spool_up_s = upFound ? t[iUp] - t[i0] : NaN;
     var s5 = i0 + Math.floor(5 * fs), iCut = i1;
-    for (i = s5; i <= i1; i++) if (tgt[i] === 0 && hs[i] > 50) { iCut = i; break; }
+    if (noTgt) { var low = 0; for (i = Math.max(s5, iUp); i <= i1; i++) { if (hs[i] < 0.9 * tgtMed) { if (++low > fs * 0.5) { iCut = i - low + 1; break; } } else low = 0; } }
+    else for (i = s5; i <= i1; i++) if (tgt[i] === 0 && hs[i] > 50) { iCut = i; break; }
     m.t_cut = t[iCut]; var downT = NaN; for (i = iCut; i < n; i++) if (hs[i] < 50) { downT = t[i] - t[iCut]; break; }
     m.spool_down_s = downT; m.hs_at_cut = hs[Math.max(iCut - 1, 0)];
     var iFl = Math.min(iUp + Math.floor(2 * fs), iCut - 1);
@@ -1319,6 +1329,7 @@ window.__ROTOR__="<svg class=\"rotor\" viewBox=\"0 0 200 200\" fill=\"none\"><de
     m.v_start = nanmean(s2);
     m.cells = (cellsArg || Math.ceil(m.v_start / 4.25)); if (!(m.v_start > 3)) m.cells = 1;
     var vs = rollMedian(flV, 25); m.v_min = nanmin(vs); m.v_min_cell = m.v_min / m.cells;
+    m.hasElec = fin(m.v_min) && fin(nanmax(flI));
     m.i_peak = nanmax(flI); m.i_mean = nanmean(flI);
     var Pw = new Float64Array(fl.n); for (i = 0; i < fl.n; i++) Pw[i] = flI[i] * flV[i];
     m.p_peak = nanmax(Pw); m.p_mean = nanmean(Pw);
@@ -1515,6 +1526,8 @@ window.__ROTOR__="<svg class=\"rotor\" viewBox=\"0 0 200 200\" fill=\"none\"><de
     }
     // ---------- Akku / ESC ----------
     var vc = m.v_min_cell;
+    if (!m.hasElec) add('info', 'Akku', 'Keine Spannungs-/Stromdaten geloggt', 'In diesem Log fehlen Vbat/Ibat (Telemetrie-Felder nicht im Blackbox-Setup aktiv).', 'Optional: Blackbox-Felder fuer Spannung/Strom aktivieren, dann wird auch der Akku ausgewertet.');
+    else {
     var ob2 = 'Start ' + f1(m.v_start) + ' V (' + m.cells + 'S angenommen), tiefster Wert unter Last ' + f1(m.v_min) + ' V (' + f2(vc) + ' V/Zelle), Spitzenstrom ' + f0(m.i_peak) + ' A, Spitzenleistung ' + f1(m.p_peak / 1000) + ' kW, Verbrauch ' + f0(m.mah) + ' mAh (' + f0(m.wh) + ' Wh).';
     if (vc < T.vcell_load_warn) add('warn', 'Akku', 'Starker Spannungseinbruch unter Last', ob2, 'Akku/Kabel/Stecker pruefen, groesseren oder frischeren Akku verwenden, Flugzeit kuerzen.');
     else if (vc < T.vcell_load_hint) add('hint', 'Akku', 'Spannung bricht unter Last spuerbar ein', ob2, 'Beobachten: verschlechtert sich der Wert ueber mehrere Fluege, ist der Akku am Ende.');
@@ -1523,6 +1536,7 @@ window.__ROTOR__="<svg class=\"rotor\" viewBox=\"0 0 200 200\" fill=\"none\"><de
       var r = m.v_rest_cell;
       if (r < T.vcell_rest_low) add('hint', 'Akku', 'Akku tief entladen gelandet', 'Ruhespannung nach der Landung ' + f2(r) + ' V/Zelle.', 'Flugzeit kuerzen oder Akku frueher wechseln (Richtwert: ab etwa 3,7-3,8 V/Zelle Ruhespannung landen).');
       else add('ok', 'Akku', 'Landung mit Reserve', 'Ruhespannung nach der Landung ' + f2(r) + ' V/Zelle.');
+    }
     }
     var te = m.t_esc_max;
     if (!fin(te)) add('info', 'ESC', 'ESC-Temperatur nicht geloggt', 'ESC-Temperatursensor nicht im Log vorhanden. Aktiviere ESC-Telemetrie fuer Temperaturueberwachung.');
@@ -1959,9 +1973,9 @@ window.__ROTOR__="<svg class=\"rotor\" viewBox=\"0 0 200 200\" fill=\"none\"><de
   function kpis(m) {
     var mo = m.mot, items = [
       ['Flugzeit', m.flight_s.toFixed(0) + ' s', 'Ziel ' + m.target.toFixed(0) + ' U/min'],
-      ['Min. Spannung', m.v_min.toFixed(1) + ' V', m.v_min_cell.toFixed(2) + ' V/Zelle &middot; ' + m.cells + 'S'],
-      ['Verbrauch', m.mah.toFixed(0) + ' mAh', m.wh.toFixed(0) + ' Wh'],
-      ['Spitzenstrom', m.i_peak.toFixed(0) + ' A', (m.p_peak / 1000).toFixed(1) + ' kW Spitze'],
+      m.hasElec ? ['Min. Spannung', m.v_min.toFixed(1) + ' V', m.v_min_cell.toFixed(2) + ' V/Zelle &middot; ' + m.cells + 'S'] : ['Min. Spannung', '&ndash;', 'nicht geloggt'],
+      m.hasElec ? ['Verbrauch', m.mah.toFixed(0) + ' mAh', m.wh.toFixed(0) + ' Wh'] : ['Verbrauch', '&ndash;', 'nicht geloggt'],
+      m.hasElec ? ['Spitzenstrom', m.i_peak.toFixed(0) + ' A', (m.p_peak / 1000).toFixed(1) + ' kW Spitze'] : ['Spitzenstrom', '&ndash;', 'nicht geloggt'],
       ['Antriebsreserve', mo ? mo.reserve.toFixed(0) + ' %' : '&ndash;', mo ? 'Ausgang &oslash; ' + mo.mean.toFixed(0) + ' %' : 'kein Gas-Wert'],
       ['ESC max.', nn(m.t_esc_max) ? '&ndash;' : m.t_esc_max.toFixed(0) + ' &deg;C', nn(m.t_esc_max) ? 'nicht geloggt' : 'Start ' + m.t_esc_start.toFixed(0) + ' &deg;C']];
     return '<div class="kpis">' + items.map(function (a) { return '<div class="kpi"><b>' + a[0] + '</b><span>' + a[1] + '</span><small>' + a[2] + '</small></div>'; }).join('') + '</div>';
@@ -1983,10 +1997,10 @@ window.__ROTOR__="<svg class=\"rotor\" viewBox=\"0 0 200 200\" fill=\"none\"><de
     var r = [['Flugphase (Drehzahl erreicht bis Gaskappung)', m.flight_s.toFixed(0) + ' s'],
       ['Zieldrehzahl', m.target.toFixed(0) + ' (' + (m.target_fixed ? 'fest' : 'variabel') + ')'],
       ['Hochlauf auf 95 %', fnum(m.spool_up_s, 1, ' s')], ['Auslauf bis < 50 U/min', fnum(m.spool_down_s, 1, ' s')],
-      ['Strom Mittel / Spitze', m.i_mean.toFixed(0) + ' / ' + m.i_peak.toFixed(0) + ' A'],
-      ['Leistung Mittel / Spitze', m.p_mean.toFixed(0) + ' / ' + m.p_peak.toFixed(0) + ' W'],
-      ['Verbrauch', m.mah.toFixed(0) + ' mAh / ' + m.wh.toFixed(0) + ' Wh'],
-      ['Spannung Start / Minimum / Ruhe nach Landung', m.v_start.toFixed(2) + ' V (' + (m.v_start / m.cells).toFixed(2) + ' V/Zelle) / ' + m.v_min.toFixed(2) + ' V (' + m.v_min_cell.toFixed(2) + ' V/Zelle) / ' + fnum(m.v_rest_cell, 2) + ' V/Zelle Ruhe'],
+      ['Strom Mittel / Spitze', !m.hasElec ? 'nicht geloggt' : m.i_mean.toFixed(0) + ' / ' + m.i_peak.toFixed(0) + ' A'],
+      ['Leistung Mittel / Spitze', !m.hasElec ? 'nicht geloggt' : m.p_mean.toFixed(0) + ' / ' + m.p_peak.toFixed(0) + ' W'],
+      ['Verbrauch', !m.hasElec ? 'nicht geloggt' : m.mah.toFixed(0) + ' mAh / ' + m.wh.toFixed(0) + ' Wh'],
+      ['Spannung Start / Minimum / Ruhe nach Landung', !m.hasElec ? 'nicht geloggt' : m.v_start.toFixed(2) + ' V (' + (m.v_start / m.cells).toFixed(2) + ' V/Zelle) / ' + m.v_min.toFixed(2) + ' V (' + m.v_min_cell.toFixed(2) + ' V/Zelle) / ' + fnum(m.v_rest_cell, 2) + ' V/Zelle Ruhe'],
       ['ESC-Temperatur Start / Max', nn(m.t_esc_max) ? 'nicht geloggt' : m.t_esc_start.toFixed(0) + ' / ' + m.t_esc_max.toFixed(0) + ' C'],
       ['Stick-Aktivitaet Roll/Nick/Gier (mittl. |Auslenkung|)', m.stick_activity.toFixed(1) + ' (Skala 0-500)']];
     Object.keys(m.track).forEach(function (lab) { var t = m.track[lab]; r.push(['Regelabweichung ' + lab + ' (Soll>150 deg/s)', 'Median ' + t[0].toFixed(0) + ', 95 % ' + t[1].toFixed(0) + ' deg/s (' + t[2] + ' Samples)']); });
@@ -2014,13 +2028,13 @@ window.__ROTOR__="<svg class=\"rotor\" viewBox=\"0 0 200 200\" fill=\"none\"><de
     if (!m.ok) return [{ title: 'Info', sev: 'info', html: '<div class="find info">' + esc(m.error || '') + '</div>', figs: [] }];
     var F = it.F, R = it.R, P = it.P, Fg = Figures, tabs = [];
     function add(title, sev, html, figs) { tabs.push({ title: title, sev: sev, html: html, figs: figs || [] }); }
-    var sub = '<div class="sub">Flugphase ' + m.flight_s.toFixed(0) + ' s | Ziel ' + m.target.toFixed(0) + ' U/min (' + (m.target_fixed ? 'fest' : 'variabel') + ') | ' + m.mah.toFixed(0) + ' mAh</div>';
+    var sub = '<div class="sub">Flugphase ' + m.flight_s.toFixed(0) + ' s | Ziel ' + m.target.toFixed(0) + ' U/min (' + (m.target_fixed ? 'fest' : 'variabel') + ')' + (m.hasElec ? ' | ' + m.mah.toFixed(0) + ' mAh' : '') + '</div>';
     var f = function (fn) { return function (el) { fn(el, m, P); }; };
     add('Übersicht', it.sev, sub + kpis(m) + fazitHtml(F) + '<div class="cards">' + cardsFor(F) + '</div><div class="figs"></div><h3>Signal / Telemetrie</h3>' + block(F, ['Signal', 'Log']), [f(Fg.overview)]);
     add('Heck', sevOf(F, ['Heck']), block(F, ['Heck']) + '<div class="figs"></div>', [f(Fg.yaw), f(Fg.spectro)]);
     add('Governor', sevOf(F, ['Governor', 'ESC/Telemetrie']), block(F, ['Governor', 'ESC/Telemetrie']) + (it.GR && it.GR.length ? '<h3>Governor-PID-Empfehlungen</h3>' + pidHtml(it.GR) : '') + '<div class="figs"></div>', [f(Fg.governor), f(Fg.load), f(Fg.govTerms)]);
     add('Antrieb', sevOf(F, ['Antrieb', 'ESC']), block(F, ['Antrieb', 'ESC']) + '<div class="figs"></div>', [f(Fg.power)]);
-    add('Akku', sevOf(F, ['Akku']), block(F, ['Akku']) + '<div class="figs"></div>', [f(Fg.battery)]);
+    if (m.hasElec) add('Akku', sevOf(F, ['Akku']), block(F, ['Akku']) + '<div class="figs"></div>', [f(Fg.battery)]);
     add('Servos', sevOf(F, ['Servos']), block(F, ['Servos']) + '<div class="figs"></div>', [f(Fg.servos)]);
     add('Vibration', sevOf(F, ['Hover', 'Vibration']), block(F, ['Vibration', 'Hover']) + (it.VR && it.VR.length ? '<h3>Filter-Empfehlungen</h3>' + pidHtml(it.VR) : '') + vibTable(m.vib) + '<div class="figs"></div>', [f(Fg.vibSpectrum), f(Fg.vibLevel), f(Fg.hover)]);
     add('PID & Filter', R.length ? 'hint' : 'ok', "<p class='small'>Basierend auf den gemessenen Werten dieses Fluges. Immer nur einen Parameter pro Flug aendern.</p>" + pidHtml(R));

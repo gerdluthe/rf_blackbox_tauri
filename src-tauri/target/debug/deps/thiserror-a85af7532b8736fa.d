@@ -1,0 +1,14 @@
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/deps/thiserror-a85af7532b8736fa.d: /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/lib.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/aserror.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/display.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/var.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/private.rs /Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/thiserror-ca8db6f6694ceec7/out/private.rs
+
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/deps/libthiserror-a85af7532b8736fa.rlib: /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/lib.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/aserror.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/display.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/var.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/private.rs /Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/thiserror-ca8db6f6694ceec7/out/private.rs
+
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/deps/libthiserror-a85af7532b8736fa.rmeta: /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/lib.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/aserror.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/display.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/var.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/private.rs /Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/thiserror-ca8db6f6694ceec7/out/private.rs
+
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/lib.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/aserror.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/display.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/var.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/thiserror-2.0.21/src/private.rs:
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/thiserror-ca8db6f6694ceec7/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/thiserror-ca8db6f6694ceec7/out

@@ -1,0 +1,14 @@
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/deps/serde-b9def753978e632d.d: /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/serde-25216b57dc357e0d/out/private.rs
+
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/deps/libserde-b9def753978e632d.rlib: /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/serde-25216b57dc357e0d/out/private.rs
+
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/deps/libserde-b9def753978e632d.rmeta: /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs /Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs /Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/serde-25216b57dc357e0d/out/private.rs
+
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/lib.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/integer128.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/mod.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/de.rs:
+/Users/gerd/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.229/src/private/ser.rs:
+/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/serde-25216b57dc357e0d/out/private.rs:
+
+# env-dep:OUT_DIR=/Users/gerd/Modellbau/RotorFlight/rf_blackbox_tauri/src-tauri/target/debug/build/serde-25216b57dc357e0d/out

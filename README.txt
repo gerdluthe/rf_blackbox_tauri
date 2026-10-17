@@ -1,13 +1,16 @@
-Rotorflight Log Analyzer - Windows (Tauri 2)
-============================================
-Eigenstaendige Windows-App ohne Server, Python oder Decoder: die Auswertung laeuft komplett in der App (WebView2, bei Win10/11 vorinstalliert).
+Rotorflight Log Analyzer - Windows + macOS (Tauri 2) + Android (Capacitor)
+====================================================
+Eigenstaendige App ohne Server, Python oder Decoder: die Auswertung laeuft komplett in der App (WebView2 unter Windows, WebKit unter macOS).
 
-Bauen ueber GitHub (ohne Installation):
- 1. Neues Repository, INHALT dieses Ordners hochladen. Der versteckte Ordner .github wird im Browser oft nicht mit hochgeladen:
-    dann "Add file > Create new file", Name  .github/workflows/windows.yml  und den Inhalt der Datei einfuegen.
-    Ebenso muss  www/index.html  und  src-tauri/...  mit der Ordnerstruktur im Repo liegen (Ordner ueber den Dateinamen mit / anlegen).
-    Am einfachsten: GitHub Desktop oder "git push" nutzen, dann bleibt alles erhalten.
- 2. Actions > "Build Windows" laeuft automatisch (ca. 8-12 Min beim ersten Mal).
- 3. Unter Artifacts "RFLogAnalyzer-windows" laden: darin rf-log-analyzer.exe (portabel) und das Setup (nsis).
+Bauen ueber GitHub: Inhalt dieses Ordners per git pushen (der versteckte Ordner .github muss mit).
+ - Jeder Push auf main baut beide Systeme (Actions > "Build Windows + macOS", Artifacts).
+ - Ein Release entsteht beim Setzen eines Tags:   git tag v1.3.0 ; git push origin v1.3.0
+   Dateien im Release: RFLogAnalyzer-portable.exe, RFLogAnalyzer-Setup.exe (Windows), RFLogAnalyzer-macOS.dmg (Mac), RFLogAnalyzer.apk (Android)
+
+macOS-Hinweis: die App ist nicht von Apple notarisiert. Nach dem Herunterladen im Terminal einmal ausfuehren:
+   xattr -cr /Applications/"Rotorflight Log Analyzer.app"
+oder per Rechtsklick > Oeffnen starten (bei neueren macOS: Systemeinstellungen > Datenschutz & Sicherheit > "Trotzdem oeffnen").
 
 Lokal bauen: Node 18+, Rust (rustup), dann  npm install ; npx tauri icon icon.png ; npx tauri build
+
+Android: Der Ordner android-app enthaelt nur die Capacitor-Konfiguration; die Web-App www/index.html wird im Workflow automatisch hineinkopiert (eine einzige Quelle fuer alle Plattformen).

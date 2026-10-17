@@ -1,4 +1,4 @@
-name: Build Windows
+name: Build Windows + macOS + Android
 on:
   workflow_dispatch:
   push:
@@ -18,19 +18,72 @@ jobs:
         with: { workspaces: src-tauri }
       - run: npm install
       - run: npx tauri icon icon.png
-      - run: npx tauri build
-      - run: Copy-Item src-tauri/target/release/rf-log-analyzer.exe RFLogAnalyzer-portable.exe
+      - run: npx tauri build --bundles nsis
+      - run: |
+          Copy-Item src-tauri/target/release/rf-log-analyzer.exe RFLogAnalyzer-portable.exe
+          $s = Get-ChildItem src-tauri/target/release/bundle/nsis/*.exe | Select-Object -First 1
+          Copy-Item $s.FullName RFLogAnalyzer-Setup.exe
         shell: pwsh
       - uses: actions/upload-artifact@v4
         with:
           name: RFLogAnalyzer-windows
           path: |
             RFLogAnalyzer-portable.exe
-            src-tauri/target/release/bundle/nsis/*.exe
-      - uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/v')
+            RFLogAnalyzer-Setup.exe
+  mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: dtolnay/rust-toolchain@stable
         with:
-          files: |
-            RFLogAnalyzer-portable.exe
-            src-tauri/target/release/bundle/nsis/*.exe
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - uses: swatinem/rust-cache@v2
+        with: { workspaces: src-tauri }
+      - run: npm install
+      - run: npx tauri icon icon.png
+      - run: npx tauri build --target universal-apple-darwin --bundles dmg
+      - run: cp src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg RFLogAnalyzer-macOS.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RFLogAnalyzer-macos
+          path: RFLogAnalyzer-macOS.dmg
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - name: Web-App in das Android-Projekt kopieren
+        run: |
+          mkdir -p android-app/www
+          cp www/index.html android-app/www/index.html
+      - run: npm install
+        working-directory: android-app
+      - run: npx cap add android
+        working-directory: android-app
+      - run: npx cap sync android
+        working-directory: android-app
+      - run: ./gradlew assembleDebug
+        working-directory: android-app/android
+      - run: cp android-app/android/app/build/outputs/apk/debug/app-debug.apk RFLogAnalyzer.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: RFLogAnalyzer-android
+          path: RFLogAnalyzer.apk
+  release:
+    needs: [win, mac, android]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*
           generate_release_notes: true

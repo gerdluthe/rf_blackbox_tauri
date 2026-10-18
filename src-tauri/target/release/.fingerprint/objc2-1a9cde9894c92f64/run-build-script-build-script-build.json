@@ -1,1 +1,0 @@
-{"rustc":10858941674615149117,"features":"","declared_features":"","target":0,"profile":0,"path":0,"deps":[[6086524926578679065,"build_script_build",false,2672243007554335964]],"local":[{"RerunIfChanged":{"output":"release/build/objc2-1a9cde9894c92f64/output","paths":["build.rs"]}}],"rustflags":[],"config":0,"compile_kind":0}

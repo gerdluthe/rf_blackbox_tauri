@@ -1,6 +1,6 @@
 {
   "name": "rotorflight-log-analyzer",
-  "version": "2.2.1",
+  "version": "2.5.0",
   "private": true,
   "scripts": { "tauri": "tauri" },
   "devDependencies": { "@tauri-apps/cli": "^2" }
